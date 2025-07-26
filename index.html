@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Modelling Clothing</title>
+  <style>
+    :root {
+      --bg: #fff;
+      --fg: #222;
+      --accent: #0077cc;
+    }
+    [data-theme="dark"] {
+      --bg: #222;
+      --fg: #eee;
+      --accent: #33aaff;
+    }
+    body {
+      margin: 0; font-family: sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    header {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 1rem; background: var(--accent);
+    }
+    nav { display: flex; gap: 1rem;}
+    nav a { color: #fff; text-decoration: none; cursor: pointer; }
+    .mobile-menu-button {
+      display: none; font-size: 1.5rem; cursor: pointer; color: #fff;
+    }
+    .mobile-nav {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 250px; height: 100%;
+      background: var(--accent);
+      padding-top: 4rem;
+      transform: translateX(-100%);
+      transition: transform .3s;
+      flex-direction: column;
+    }
+    .mobile-nav.open { transform: translateX(0); }
+    .mobile-nav a { color: #fff; padding: .5rem 1rem; text-decoration: none; }
+
+    main { padding: 1rem; }
+    section { display: none; }
+    section.active { display: block; }
+
+    /* Countdown timer */
+    #countdown { font-size: 1.2rem; margin: 1rem 0; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--bg);
+      color: var(--fg);
+      padding: 2rem; border-radius: 8px;
+      max-width: 400px;
+      text-align: center;
+    }
+    .modal button { margin-top: 1rem; }
+
+    /* Collapsible form section */
+    .collapsible {
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      padding: .5rem;
+      margin-bottom: .5rem;
+    }
+    .content {
+      padding: .5rem;
+      display: none;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    .content.show { display: block; }
+
+    /* Image slider */
+    .slider {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 1rem auto;
+      overflow: hidden;
+    }
+    .slides {
+      display: flex;
+      transition: transform .5s ease-in-out;
+    }
+    .slides img {
+      width: 100%;
+      flex-shrink: 0;
+    }
+    .slider-controls {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+    }
+    .slider-controls button {
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #fff;
+      padding: .5rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>Modelling Clothing</div>
+  <nav class="desktop-nav">
+    <a data-target="home">Home</a>
+    <a data-target="projects">Projects</a>
+    <a data-target="contact">Contact</a>
+  </nav>
+  <div class="mobile-menu-button">&#9776;</div>
+</header>
+
+<div class="mobile-nav">
+  <a data-target="home">Home</a>
+  <a data-target="projects">Projects</a>
+  <a data-target="contact">Contact</a>
+</div>
+
+<main>
+  <!-- Home -->
+  <section id="home" class="active">
+    <button id="theme-toggle">Toggle Light / Dark Mode</button>
+
+    <div id="countdown">Next sale in: <span id="time">00:00:00:00</span></div>
+
+    <button id="open-modal">Welcome Offer</button>
+
+    <div class="slider">
+      <div class="slides">
+        <img src="https://via.placeholder.com/600x300?text=Slide+1" alt="">
+        <img src="https://via.placeholder.com/600x300?text=Slide+2" alt="">
+        <img src="https://via.placeholder.com/600x300?text=Slide+3" alt="">
+      </div>
+      <div class="slider-controls">
+        <button id="prev">&#10094;</button>
+        <button id="next">&#10095;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section id="projects">
+    <h2>Our Projects</h2>
+    <div class="collapsible">Project A</div>
+    <div class="content">
+      <p>Details about Project A.</p>
+    </div>
+    <div class="collapsible">Project B</div>
+    <div class="content">
+      <p>Details about Project B.</p>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <div class="collapsible">Send a message</div>
+    <div class="content">
+      <form id="contact-form">
+        <label>Name: <input type="text" name="name" required></label><br><br>
+        <label>Email: <input type="email" name="email" required></label><br><br>
+        <label>Message:<br><textarea name="message" required></textarea></label><br><br>
+        <button type="submit">Submit</button>
+      </form>
+      <div id="thank-you" style="display:none;">Thanks for your message!</div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>Special Welcome Offer!</h3>
+    <p>Get 20% off your first order.</p>
+    <button id="close-modal">Close</button>
+  </div>
+</div>
+
+<script>
+  // Tab navigation
+  document.querySelectorAll('nav a, .mobile-nav a').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const target = e.target.dataset.target;
+      document.querySelectorAll('main section').forEach(s => {
+        s.classList.toggle('active', s.id === target);
+      });
+      document.querySelector('.mobile-nav').classList.remove('open');
+    });
+  });
+  document.querySelector('.mobile-menu-button').addEventListener('click', () => {
+    document.querySelector('.mobile-nav').classList.toggle('open');
+  });
+
+  // Theme toggle
+  const themeBtn = document.getElementById('theme-toggle');
+  themeBtn.addEventListener('click', () => {
+    document.documentElement.dataset.theme =
+      document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  // Countdown
+  const countdownEl = document.getElementById('time');
+  const targetDate = new Date(Date.now() + 5 * 24 * 3600e3); // 5 days from now
+  function updateCountdown(){
+    const now = new Date();
+    const diff = targetDate - now;
+    if (diff <= 0) {
+      countdownEl.textContent = "00:00:00:00";
+      clearInterval(timer);
+      return;
+    }
+    const days = String(Math.floor(diff / 86400000)).padStart(2,'0');
+    const hours = String(Math.floor((diff % 86400000)/3600000)).padStart(2,'0');
+    const mins = String(Math.floor((diff % 3600000)/60000)).padStart(2,'0');
+    const secs = String(Math.floor((diff % 60000)/1000)).padStart(2,'0');
+    countdownEl.textContent = \`\${days}:\${hours}:\${mins}:\${secs}\`;
+  }
+  const timer = setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // Modal
+  const modal = document.getElementById('modal-overlay');
+  document.getElementById('open-modal').addEventListener('click', () => {
+    modal.classList.add('show');
+  });
+  document.getElementById('close-modal').addEventListener('click', () => {
+    modal.classList.remove('show');
+  });
+
+  // Collapsible sections
+  document.querySelectorAll('.collapsible').forEach(h => {
+    h.addEventListener('click', () => {
+      const content = h.nextElementSibling;
+      content.classList.toggle('show');
+    });
+  });
+
+  // Contact form
+  const form = document.getElementById('contact-form');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    form.style.display = 'none';
+    document.getElementById('thank-you').style.display = 'block';
+  });
+
+  // Image slider
+  const slides = document.querySelector('.slides');
+  const images = document.querySelectorAll('.slides img');
+  let idx = 0;
+  function showSlide(i) {
+    idx = (i + images.length) % images.length;
+    slides.style.transform = 'translateX(' + (-idx * 100) + '%)';
+  }
+  document.getElementById('prev').addEventListener('click', () => showSlide(idx - 1));
+  document.getElementById('next').addEventListener('click', () => showSlide(idx + 1));
+  // auto-play
+  setInterval(() => showSlide(idx + 1), 5000);
+</script>
+
+</body>
+</html>
+
